@@ -19,7 +19,14 @@ public class EggTimerCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] split) {
-        return false;
+        if (split.length == 0) return false;
+        if (!sender.isOp()) {
+            sender.sendMessage(ChatColor.GRAY + "You don't have permission to use this command");
+            return true;
+        }
+
+        plugin.loadConfig();
+        return true;
     }
     
 }
