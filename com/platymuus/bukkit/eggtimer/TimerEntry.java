@@ -10,7 +10,9 @@ public class TimerEntry {
     public int x, y, z;
     public int item, count, data, interval;
 
-    TimerEntry(String world, int x, int y, int z, int item, int count, int data, int interval) {
+    public TimerEntry() {}
+
+    public TimerEntry(String world, int x, int y, int z, int item, int count, int data, int interval) {
         this.world = world;
         this.x = x; this.y = y; this.z = z;
         this.item = item; this.count = count;

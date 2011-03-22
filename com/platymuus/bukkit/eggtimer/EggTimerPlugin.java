@@ -39,12 +39,17 @@ public class EggTimerPlugin extends JavaPlugin {
     }
 
     private void timer() {
-
-
         ++currentTime;
+
+        for (TimerEntry entry : timerEntries) {
+            if (currentTime % entry.interval == 0) {
+                
+            }
+        }
     }
 
     public void loadConfig() {
+        timerEntries.clear();
         this.getDataFolder().mkdirs();
         File f = new File(getDataFolder(), "locations.txt");
         try {
@@ -65,8 +70,26 @@ public class EggTimerPlugin extends JavaPlugin {
                     continue;
                 }
 
-                // TODO
+                TimerEntry entry = new TimerEntry();
+                entry.world = coords[0];
+                try {
+                    entry.x = Integer.parseInt(coords[1]);
+                    entry.y = Integer.parseInt(coords[2]);
+                    entry.z = Integer.parseInt(coords[3]);
+                    entry.item = Integer.parseInt(item[0]);
+                    entry.count = Integer.parseInt(item[1]);
+                    entry.data = Integer.parseInt(item[2]);
+                    entry.interval = Integer.parseInt(item[3]);
+                }
+                catch (NumberFormatException ex) {
+                    System.out.println("[EggTimer] Not a number value on line " + line);
+                    continue;
+                }
 
+                // TODO: Sanity checks.
+
+                timerEntries.add(entry);
+                
                 ++line;
             }
         }
