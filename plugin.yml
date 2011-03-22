@@ -1,0 +1,9 @@
+name: EggTimer
+version: 0.9
+author: SpaceManiac
+description: A simple plugin
+main: com.platymuus.bukkit.eggtimer.EggTimerPlugin
+commands:
+  eggtimer:
+    description: Allows reloading of the EggTimer configuration.
+    usage: /eggtimer reload
