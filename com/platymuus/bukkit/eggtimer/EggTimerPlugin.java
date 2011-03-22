@@ -5,6 +5,9 @@ import java.util.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,7 +35,7 @@ public class EggTimerPlugin extends JavaPlugin {
 
         // Say hi
         PluginDescriptionFile pdfFile = getDescription();
-        System.out.println(pdfFile.getName() + " v" + pdfFile.getVersion() + " enabled");
+        System.out.println(pdfFile.getName() + " v" + pdfFile.getVersion() + " enabled: " + timerEntries.size() + " entries");
     }
 
     @Override
@@ -46,7 +49,19 @@ public class EggTimerPlugin extends JavaPlugin {
 
         for (TimerEntry entry : timerEntries) {
             if (currentTime % entry.interval == 0) {
-                
+                World world = getServer().getWorld(entry.world);
+                Block block = world.getBlockAt(entry.x, entry.y, entry.z);
+                if (world.isChunkLoaded(world.getChunkAt(block))) {
+                    // Don't add items for unloaded chunks.
+                    if (block.getType() == Material.CHEST) {
+                        Chest chest = (Chest) block.getState();
+                        Inventory inv = chest.getInventory();
+                        // Clear it for now.
+                        inv.clear();
+                        ItemStack stack = new ItemStack(entry.item, entry.count, (short) 0, (byte) entry.data);
+                        inv.addItem(stack);
+                    }
+                }
             }
         }
     }
