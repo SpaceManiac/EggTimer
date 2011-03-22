@@ -2,6 +2,9 @@ package com.platymuus.bukkit.eggtimer;
 
 import java.io.*;
 import java.util.*;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -53,9 +56,11 @@ public class EggTimerPlugin extends JavaPlugin {
         this.getDataFolder().mkdirs();
         File f = new File(getDataFolder(), "locations.txt");
         try {
-            int line = 1;
+            int line = 0;
             Scanner in = new Scanner(f);
             while (in.hasNextLine()) {
+                ++line;
+
                 String[] split = in.nextLine().split("=");
                 if (split.length < 2) continue;
                 if (split[0].charAt(0) == '#') continue;
@@ -88,9 +93,31 @@ public class EggTimerPlugin extends JavaPlugin {
 
                 // TODO: Sanity checks.
 
+                World world = getServer().getWorld(entry.world);
+                if (world == null) {
+                    System.out.println("[EggTimer] " + entry.world + " unloaded, not checking validity on line " + line);
+                } else {
+                    Block block = world.getBlockAt(entry.x, entry.y, entry.z);
+                    if (block.getType() != Material.CHEST) {
+                        System.out.println("[EggTimer] Block is not a chest on line " + line);
+                        boolean found = false;
+                        for (int dx = -1; dx <= 1; ++dx) {
+                            for (int dy = -1; dy <= 1; ++dy) {
+                                for (int dz = -1; dz <= 1; ++dz) {
+                                    if (block.getRelative(dx, dy, dz).getType() == Material.CHEST) {
+                                        System.out.println("(did you mean " + (entry.x+dx) + "," + (entry.y+dy) + "," + (entry.z+dz) + "?)");
+                                        found = true; break;
+                                    }
+                                }
+                                if (found) break;
+                            }
+                            if (found) break;
+                        }
+                        continue;
+                    }
+                }
+
                 timerEntries.add(entry);
-                
-                ++line;
             }
         }
         catch (FileNotFoundException ex) {
