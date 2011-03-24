@@ -136,6 +136,7 @@ public class EggTimerPlugin extends JavaPlugin {
 
                 timerEntries.add(entry);
             }
+            if (player != null) send(player, "[EggTimer] Load complete, " + timerEntries.size() + " entries");
         }
         catch (FileNotFoundException ex) {
             send(player, "[EggTimer] Could not find locations.txt.");

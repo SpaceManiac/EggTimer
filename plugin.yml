@@ -1,7 +1,7 @@
 name: EggTimer
-version: 0.9
+version: 1.0
 author: SpaceManiac
-description: A simple plugin
+description: A simple plugin to create timed item deposits in chests around the map.
 main: com.platymuus.bukkit.eggtimer.EggTimerPlugin
 commands:
   eggtimer:
