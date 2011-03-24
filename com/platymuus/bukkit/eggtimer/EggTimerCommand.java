@@ -1,6 +1,7 @@
 package com.platymuus.bukkit.eggtimer;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,7 +26,7 @@ public class EggTimerCommand implements CommandExecutor {
             return true;
         }
 
-        plugin.loadConfig();
+        plugin.loadConfig((Player) sender);
         return true;
     }
     

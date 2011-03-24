@@ -2,6 +2,7 @@ package com.platymuus.bukkit.eggtimer;
 
 import java.io.*;
 import java.util.*;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.entity.Player;
 
 /**
  * Main class for Egg Timer plugin.
@@ -26,7 +28,7 @@ public class EggTimerPlugin extends JavaPlugin {
         getCommand("eggtimer").setExecutor(new EggTimerCommand(this));
 
         // Load config
-        loadConfig();
+        loadConfig(null);
 
         // Start the timer - every 20 ticks = every second
         getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -58,7 +60,7 @@ public class EggTimerPlugin extends JavaPlugin {
                         Inventory inv = chest.getInventory();
                         // Clear it for now.
                         inv.clear();
-                        ItemStack stack = new ItemStack(entry.item, entry.count, (short) 0, (byte) entry.data);
+                        ItemStack stack = new ItemStack(entry.item, entry.count, (short) entry.data, (byte) entry.data);
                         inv.addItem(stack);
                     }
                 }
@@ -66,7 +68,7 @@ public class EggTimerPlugin extends JavaPlugin {
         }
     }
 
-    public void loadConfig() {
+    public void loadConfig(Player player) {
         timerEntries.clear();
         this.getDataFolder().mkdirs();
         File f = new File(getDataFolder(), "locations.txt");
@@ -81,12 +83,12 @@ public class EggTimerPlugin extends JavaPlugin {
                 if (split[0].charAt(0) == '#') continue;
 
                 String[] coords = split[0].split(",");
-                String[] item = split[0].split(",");
+                String[] item = split[1].split(",");
                 if (coords.length != 4) {
-                    System.out.println("[EggTimer] Expected 4x coords on line " + line);
+                    send(player, "[EggTimer] Expected 4x coords on line " + line);
                     continue;
                 } else if (item.length != 4) {
-                    System.out.println("[EggTimer] Expected 4x item info on line " + line);
+                    send(player, "[EggTimer] Expected 4x item info on line " + line);
                     continue;
                 }
 
@@ -102,7 +104,7 @@ public class EggTimerPlugin extends JavaPlugin {
                     entry.interval = Integer.parseInt(item[3]);
                 }
                 catch (NumberFormatException ex) {
-                    System.out.println("[EggTimer] Not a number value on line " + line);
+                    send(player, "[EggTimer] Not a number value on line " + line);
                     continue;
                 }
 
@@ -110,17 +112,17 @@ public class EggTimerPlugin extends JavaPlugin {
 
                 World world = getServer().getWorld(entry.world);
                 if (world == null) {
-                    System.out.println("[EggTimer] " + entry.world + " unloaded, not checking validity on line " + line);
+                    send(player, "[EggTimer] " + entry.world + " unloaded, not checking validity on line " + line);
                 } else {
                     Block block = world.getBlockAt(entry.x, entry.y, entry.z);
                     if (block.getType() != Material.CHEST) {
-                        System.out.println("[EggTimer] Block is not a chest on line " + line);
+                        send(player, "[EggTimer] Block is not a chest on line " + line);
                         boolean found = false;
                         for (int dx = -1; dx <= 1; ++dx) {
                             for (int dy = -1; dy <= 1; ++dy) {
                                 for (int dz = -1; dz <= 1; ++dz) {
                                     if (block.getRelative(dx, dy, dz).getType() == Material.CHEST) {
-                                        System.out.println("(did you mean " + (entry.x+dx) + "," + (entry.y+dy) + "," + (entry.z+dz) + "?)");
+                                        send(player, "(did you mean " + (entry.x+dx) + "," + (entry.y+dy) + "," + (entry.z+dz) + "?)");
                                         found = true; break;
                                     }
                                 }
@@ -136,7 +138,15 @@ public class EggTimerPlugin extends JavaPlugin {
             }
         }
         catch (FileNotFoundException ex) {
-            System.out.println("[EggTimer] Could not find locations.txt.");
+            send(player, "[EggTimer] Could not find locations.txt.");
+        }
+    }
+
+    private void send(Player player, String text) {
+        if (player == null) {
+            System.out.println(text);
+        } else {
+            player.sendMessage(ChatColor.GRAY + text);
         }
     }
 
